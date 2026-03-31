@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#6366f1">
+    <title>环境音制造器</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <canvas id="ambientCanvas" class="ambient-canvas"></canvas>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <i class="fa-solid fa-headphones"></i>
+                <span>环境音制造器</span>
+            </div>
+            <div class="header-controls">
+                <button id="sleepTimer" class="icon-btn" title="睡眠定时器">
+                    <i class="fa-solid fa-clock"></i>
+                </button>
+                <button id="themeToggle" class="icon-btn" title="切换主题">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+                <button id="savedPresets" class="btn secondary" title="已保存的预设">
+                    <i class="fa-solid fa-folder-open"></i>
+                    <span>已保存</span>
+                </button>
+                <button id="savePreset" class="btn primary" title="保存当前混音">
+                    <i class="fa-solid fa-bookmark"></i>
+                    <span>保存</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Category Tabs -->
+            <nav class="category-tabs">
+                <span class="tab active" data-category="all">全部</span>
+                <span class="tab" data-category="rain">雨声</span>
+                <span class="tab" data-category="nature">自然</span>
+                <span class="tab" data-category="urban">城市</span>
+                <span class="tab" data-category="transport">交通</span>
+                <span class="tab" data-category="places">场所</span>
+                <span class="tab" data-category="animals">动物</span>
+                <span class="tab" data-category="noise">噪音</span>
+                <span class="tab" data-category="things">物件</span>
+            </nav>
+
+            <!-- Quick Presets -->
+            <div id="quickPresetsBar" class="quick-presets-bar">
+                <div class="quick-presets-label">快速启动</div>
+                <div id="quickPresetsList" class="quick-presets-list"></div>
+            </div>
+
+            <!-- Sound Grid -->
+            <div id="soundGrid" class="sound-grid"></div>
+
+            <!-- Now Playing Bar -->
+            <div id="nowPlayingBar" class="now-playing-bar hidden" role="button" tabindex="0">
+                <div class="playing-indicator">
+                    <span class="pulse-dot"></span>
+                    <span>正在播放</span>
+                    <i class="fa-solid fa-chevron-up expand-icon"></i>
+                </div>
+                <div id="timerBarDisplay" class="timer-bar-display hidden">
+                    <i class="fa-solid fa-clock"></i>
+                    <span id="timerBarValue">00:00</span>
+                </div>
+                <div id="activeSounds" class="active-sounds"></div>
+            </div>
+
+            <!-- Expanded Now Playing Panel -->
+            <div id="nowPlayingPanel" class="now-playing-panel hidden">
+                <div class="panel-header-row">
+                    <h3><i class="fa-solid fa-music"></i> 正在播放</h3>
+                    <button id="closeNowPlayingPanel" class="icon-btn">
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                </div>
+                <div id="expandedActiveSounds" class="expanded-active-sounds"></div>
+            </div>
+        </main>
+
+        <!-- Presets Panel -->
+        <aside id="presetsPanel" class="presets-panel hidden">
+            <div class="panel-header">
+                <h3><i class="fa-solid fa-bookmark"></i> 保存的混音</h3>
+                <button id="closePresets" class="icon-btn">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div id="presetsList" class="presets-list"></div>
+        </aside>
+
+        <!-- Sleep Timer Panel -->
+        <div id="timerPanel" class="timer-panel hidden">
+            <div class="timer-panel-header">
+                <h3><i class="fa-solid fa-clock"></i> 睡眠定时器</h3>
+                <button id="closeTimer" class="icon-btn">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="timer-presets">
+                <button class="timer-btn" data-minutes="15">15分钟</button>
+                <button class="timer-btn" data-minutes="30">30分钟</button>
+                <button class="timer-btn" data-minutes="45">45分钟</button>
+                <button class="timer-btn" data-minutes="60">1小时</button>
+                <button class="timer-btn" data-minutes="90">1.5小时</button>
+                <button class="timer-btn" data-minutes="120">2小时</button>
+            </div>
+            <div class="timer-custom">
+                <input type="number" id="customTimerInput" min="1" max="480" placeholder="自定义分钟数">
+                <button id="setCustomTimer" class="btn primary">设置</button>
+            </div>
+            <div id="timerActive" class="timer-active hidden">
+                <div class="timer-countdown">
+                    <span class="timer-label">剩余时间</span>
+                    <span id="timerRemaining" class="timer-value">00:00</span>
+                </div>
+                <button id="cancelTimerBtn" class="btn secondary">取消定时器</button>
+            </div>
+        </div>
+
+        <!-- Sound Editor Modal -->
+        <div id="soundEditor" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="sound-icon-large">
+                        <i id="editorIcon" class="fa-solid fa-volume-high"></i>
+                    </div>
+                    <h2 id="editorTitle">声音标题</h2>
+                    <button id="closeEditor" class="icon-btn">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="volume-control">
+                        <label>音量</label>
+                        <input type="range" id="volumeSlider" min="0" max="100" value="50">
+                        <span id="volumeValue">50%</span>
+                    </div>
+                    <div class="presets-quick">
+                        <label>快速预设</label>
+                        <div class="preset-buttons">
+                            <button data-volume="20" class="preset-btn">20%</button>
+                            <button data-volume="40" class="preset-btn">40%</button>
+                            <button data-volume="60" class="preset-btn">60%</button>
+                            <button data-volume="80" class="preset-btn">80%</button>
+                            <button data-volume="100" class="preset-btn">100%</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Message Modal (replaces alert) -->
+        <div id="messageModal" class="modal hidden">
+            <div class="modal-content dialog-content">
+                <div class="modal-header">
+                    <h2 id="messageTitle">提示</h2>
+                </div>
+                <div class="modal-body">
+                    <p id="messageText"></p>
+                </div>
+                <div class="modal-buttons">
+                    <button id="messageOk" class="btn primary modal-btn-full">好</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Confirm Modal (replaces confirm) -->
+        <div id="confirmModal" class="modal hidden">
+            <div class="modal-content dialog-content">
+                <div class="modal-header">
+                    <h2 id="confirmTitle">确认</h2>
+                </div>
+                <div class="modal-body">
+                    <p id="confirmText"></p>
+                </div>
+                <div class="modal-buttons">
+                    <button id="confirmCancel" class="btn secondary">取消</button>
+                    <button id="confirmOk" class="btn primary">好</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Input Modal (replaces prompt) -->
+        <div id="inputModal" class="modal hidden">
+            <div class="modal-content dialog-content">
+                <div class="modal-header">
+                    <h2 id="inputTitle">输入</h2>
+                </div>
+                <div class="modal-body">
+                    <input type="text" id="inputField" class="modal-input" placeholder="">
+                </div>
+                <div class="modal-buttons">
+                    <button id="inputCancel" class="btn secondary">取消</button>
+                    <button id="inputOk" class="btn primary">好</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

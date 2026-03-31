@@ -1,0 +1,19 @@
+{
+  "name": "ambient-sound-generator",
+  "version": "1.0.0",
+  "description": "环境音制造器 - Ambient Sound Generator App",
+  "scripts": {
+    "sync": "npx cap sync android",
+    "open": "npx cap open android",
+    "build:android": "cd android && ./gradlew assembleDebug",
+    "build:android:release": "cd android && ./gradlew assembleRelease"
+  },
+  "keywords": ["ambient", "sound", "noise", "white-noise", "relaxation"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@capacitor/android": "^8.3.0",
+    "@capacitor/cli": "^8.3.0",
+    "@capacitor/core": "^8.3.0"
+  }
+}
