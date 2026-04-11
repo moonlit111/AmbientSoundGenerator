@@ -172,12 +172,45 @@ const state = {
     timer: { active: false, endTime: null, countdownInterval: null, fadeInterval: null, originalVolumes: new Map() }
 };
 
+// ---- Scroll-based topbar hide (mobile) ----
+let lastScrollTop = 0;
+let scrollTicking = false;
+function initScrollHide() {
+    const mainArea = document.querySelector('.main-area');
+    const topbar = document.querySelector('.topbar');
+    if (!mainArea || !topbar) return;
+
+    mainArea.addEventListener('scroll', () => {
+        if (scrollTicking) return;
+        scrollTicking = true;
+        requestAnimationFrame(() => {
+            const st = mainArea.scrollTop;
+            const isMobile = window.innerWidth <= 768;
+            if (!isMobile) {
+                topbar.classList.remove('topbar-hidden');
+                scrollTicking = false;
+                return;
+            }
+            if (st > lastScrollTop && st > 60) {
+                // Scrolling down & past threshold
+                topbar.classList.add('topbar-hidden');
+            } else {
+                // Scrolling up or near top
+                topbar.classList.remove('topbar-hidden');
+            }
+            lastScrollTop = Math.max(0, st);
+            scrollTicking = false;
+        });
+    }, { passive: true });
+}
+
 // ---- Init ----
 document.addEventListener('DOMContentLoaded', () => {
     initTheme();
     renderSoundGrid();
     renderQuickPresets();
     initEventListeners();
+    initScrollHide();
 });
 
 // ---- Theme ----
@@ -189,6 +222,8 @@ function initTheme() {
 
 function applyTheme() {
     document.body.classList.toggle('dark', state.currentTheme === 'dark');
+    const tc = document.querySelector('meta[name="theme-color"]');
+    if (tc) tc.content = state.currentTheme === 'dark' ? '#0a0a0c' : '#f0f1f5';
 }
 
 function toggleTheme() {
@@ -209,6 +244,11 @@ function setCategory(cat) {
     // Update pills
     document.querySelectorAll('.pill').forEach(p =>
         p.classList.toggle('active', p.dataset.category === cat)
+    );
+
+    // Update mobile tab bar
+    document.querySelectorAll('#mobileTabBar .tab-item[data-category]').forEach(t =>
+        t.classList.toggle('active', t.dataset.category === cat)
     );
 
     // Update title
@@ -831,6 +871,24 @@ function initEventListeners() {
     document.getElementById('topbarTheme')?.addEventListener('click', toggleTheme);
     document.getElementById('mobileTheme')?.addEventListener('click', toggleTheme);
 
+    // Mobile bottom tab bar
+    document.querySelectorAll('#mobileTabBar .tab-item[data-category]').forEach(t =>
+        t.addEventListener('click', () => setCategory(t.dataset.category))
+    );
+    document.getElementById('mobileMoreTab')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        const isOpen = sidebar.classList.contains('open');
+        if (isOpen) {
+            sidebar.classList.remove('open');
+            overlay?.classList.add('hidden');
+        } else {
+            sidebar.classList.add('open');
+            overlay?.classList.remove('hidden');
+        }
+    });
+
     // Sidebar navigation
     document.querySelectorAll('#sidebarNav .nav-item').forEach(n =>
         n.addEventListener('click', () => setCategory(n.dataset.category))
@@ -842,11 +900,18 @@ function initEventListeners() {
     );
 
     // Mobile menu toggle
-    document.getElementById('menuToggle')?.addEventListener('click', () => {
+    document.getElementById('menuToggle')?.addEventListener('click', (e) => {
+        e.stopPropagation();
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('sidebarOverlay');
-        sidebar.classList.toggle('open');
-        overlay?.classList.toggle('hidden', !sidebar.classList.contains('open'));
+        const isOpen = sidebar.classList.contains('open');
+        if (isOpen) {
+            sidebar.classList.remove('open');
+            overlay?.classList.add('hidden');
+        } else {
+            sidebar.classList.add('open');
+            overlay?.classList.remove('hidden');
+        }
     });
 
     // Close sidebar on overlay tap (mobile)

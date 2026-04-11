@@ -8,12 +8,20 @@
     "build:android": "cd android && ./gradlew assembleDebug",
     "build:android:release": "cd android && ./gradlew assembleRelease"
   },
-  "keywords": ["ambient", "sound", "noise", "white-noise", "relaxation"],
+  "keywords": [
+    "ambient",
+    "sound",
+    "noise",
+    "white-noise",
+    "relaxation"
+  ],
   "author": "",
   "license": "MIT",
   "dependencies": {
     "@capacitor/android": "^8.3.0",
     "@capacitor/cli": "^8.3.0",
-    "@capacitor/core": "^8.3.0"
+    "@capacitor/core": "^8.3.0",
+    "@capacitor/status-bar": "^8.0.2",
+    "playwright": "^1.59.1"
   }
 }

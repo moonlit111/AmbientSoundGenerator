@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" black-translucent">
-    <meta name="theme-color" content="#ffffff">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0a0a0c">
     <title>环境音效制造器</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -157,6 +157,25 @@
             </section>
         </div>
     </div>
+
+    <!-- Mobile Bottom Tab Bar -->
+    <nav class="mobile-tab-bar" id="mobileTabBar">
+        <button class="tab-item active" data-category="all">
+            <i class="fa-solid fa-border-all"></i><span>全部</span>
+        </button>
+        <button class="tab-item" data-category="rain">
+            <i class="fa-solid fa-cloud-rain"></i><span>雨声</span>
+        </button>
+        <button class="tab-item" data-category="nature">
+            <i class="fa-solid fa-leaf"></i><span>自然</span>
+        </button>
+        <button class="tab-item" data-category="favorites">
+            <i class="fa-solid fa-star"></i><span>收藏</span>
+        </button>
+        <button class="tab-item" id="mobileMoreTab">
+            <i class="fa-solid fa-ellipsis"></i><span>更多</span>
+        </button>
+    </nav>
 
     <!-- Now Playing — Minimal Glass Bar -->
     <div class="now-playing hidden" id="nowPlaying">
