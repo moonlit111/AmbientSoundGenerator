@@ -207,6 +207,13 @@ input{font-family:inherit;color:inherit}
 /* Ensure content above glow */
 .sidebar, .main-area { position:relative; z-index:1; }
 
+/* Sidebar overlay (mobile) */
+.sidebar-overlay{
+    position:fixed;inset:0;background:var(--overlay);z-index:99;
+    animation:fade-in .2s ease;
+}
+.sidebar-handle{display:none}
+
 /* Sidebar — Liquid Glass */
 .sidebar{
     position:fixed;top:0;left:0;bottom:0;width:var(--sidebar-w);z-index:100;
@@ -531,12 +538,7 @@ input{font-family:inherit;color:inherit}
     box-shadow:var(--glass-shadow), var(--glass-inset);
     transition:box-shadow var(--dur-fast) ease;
     animation:npFloatUp .4s var(--ease-out) both;
-    /* Account for sidebar on desktop — shift right */
     margin-left:var(--sidebar-w);
-}
-body:not(.sidebar-visible) .now-playing,
-.now-playing.no-sidebar{
-    margin-left:0;
 }
 .now-playing:hover{box-shadow:var(--glass-shadow-hover), var(--glass-inset)}
 
@@ -787,12 +789,21 @@ body:not(.sidebar-visible) .now-playing,
 @media(max-width:768px){
     :root{--sidebar-w:0px}
 
+    .sidebar-handle{display:block}
     .sidebar{
-        transform:translateX(-100%);
-        width:280px;
-        box-shadow:var(--shadow-xl);
+        position:fixed;top:auto;bottom:0;left:0;right:0;
+        width:100%;height:auto;max-height:70vh;
+        transform:translateY(100%);
+        border-radius:var(--r-2xl) var(--r-2xl) 0 0;
+        border-right:none;border-top:1px solid var(--glass-border);
+        box-shadow:var(--glass-shadow-hover);
+        padding:var(--sp-2) 0 var(--sp-4);
+        z-index:100;
     }
-    .sidebar.open{transform:translateX(0)}
+    .sidebar.open{transform:translateY(0)}
+    .sidebar-header{padding:var(--sp-2) var(--sp-4)}
+    .sidebar-nav{flex-direction:column;gap:2px;padding:0 var(--sp-3);overflow-y:auto;max-height:50vh}
+    .sidebar-footer{flex-direction:row;justify-content:center}
 
     .main-area{margin-left:0}
 

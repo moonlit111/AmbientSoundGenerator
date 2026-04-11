@@ -219,6 +219,7 @@ function setCategory(cat) {
 
     // Close mobile sidebar
     document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebarOverlay')?.classList.add('hidden');
 }
 
 // ---- Sound Grid ----
@@ -416,11 +417,13 @@ function stopAllSounds() {
 
 // ---- Ambient Glow ----
 const glowColors = {
-    rain: 'rgba(0,122,255,%.18)', nature: 'rgba(52,199,89,%.14)',
-    urban: 'rgba(255,149,0,%.14)', transport: 'rgba(175,82,222,%.14)',
-    places: 'rgba(255,45,85,%.12)', animals: 'rgba(255,204,0,%.12)',
-    noise: 'rgba(142,142,147,%.10)', things: 'rgba(90,200,250,%.14)'
+    rain: 'rgba(0,122,255,.18)', nature: 'rgba(52,199,89,.14)',
+    urban: 'rgba(255,149,0,.14)', transport: 'rgba(175,82,222,.14)',
+    places: 'rgba(255,45,85,.12)', animals: 'rgba(255,204,0,.12)',
+    noise: 'rgba(142,142,147,.10)', things: 'rgba(90,200,250,.14)'
 };
+const defaultGlow1 = 'rgba(0,122,255,.18)';
+const defaultGlow2 = 'rgba(52,199,89,.14)';
 
 function updateAmbientGlow() {
     const app = document.querySelector('.app');
@@ -441,11 +444,8 @@ function updateAmbientGlow() {
     const primary = sorted[0]?.[0];
     const secondary = sorted[1]?.[0];
 
-    const p = glowColors[primary] || 'rgba(0,122,255,%.18)';
-    const s = glowColors[secondary || primary] || 'rgba(52,199,89,%.14)';
-
-    app.style.setProperty('--glow-1', p.replace('%', ''));
-    app.style.setProperty('--glow-2', s.replace('%', ''));
+    app.style.setProperty('--glow-1', glowColors[primary] || defaultGlow1);
+    app.style.setProperty('--glow-2', glowColors[secondary || primary] || defaultGlow2);
 }
 
 // ---- Now Playing Bar ----
@@ -621,16 +621,17 @@ async function savePreset() {
     renderQuickPresets();
 }
 
-function loadPreset(i) {
-    const p = state.presets[i];
+function loadSoundsList(sounds) {
     state.activeSounds.forEach((_, id) => stopSound(id));
-    p.sounds.forEach(s => { const info = findSoundById(s.id); if (info) playSound(info.sound, info.category, s.volume); });
+    sounds.forEach(s => { const info = findSoundById(s.id); if (info) playSound(info.sound, info.category, s.volume); });
+}
+
+function loadPreset(i) {
+    loadSoundsList(state.presets[i].sounds);
 }
 
 function loadRecommendedPreset(i) {
-    const p = recommendedPresets[i];
-    state.activeSounds.forEach((_, id) => stopSound(id));
-    p.sounds.forEach(s => { const info = findSoundById(s.id); if (info) playSound(info.sound, info.category, s.volume); });
+    loadSoundsList(recommendedPresets[i].sounds);
 }
 
 async function deletePreset(i) {
@@ -782,13 +783,14 @@ function showInput(title, placeholder, defaultVal) {
     });
 }
 
-// ---- Utility ----
+// Sound lookup index (built once)
+const soundIndex = new Map();
+for (const [cat, data] of Object.entries(soundDatabase)) {
+    for (const s of data.sounds) soundIndex.set(s.id, { sound: s, category: cat });
+}
+
 function findSoundById(id) {
-    for (const [cat, data] of Object.entries(soundDatabase)) {
-        const s = data.sounds.find(s => s.id === id);
-        if (s) return { sound: s, category: cat };
-    }
-    return null;
+    return soundIndex.get(id) || null;
 }
 
 function saveSession() {
@@ -825,15 +827,24 @@ function initEventListeners() {
 
     // Mobile menu toggle
     document.getElementById('menuToggle')?.addEventListener('click', () => {
-        document.getElementById('sidebar').classList.toggle('open');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        sidebar.classList.toggle('open');
+        overlay?.classList.toggle('hidden', !sidebar.classList.contains('open'));
     });
 
     // Close sidebar on overlay tap (mobile)
+    document.getElementById('sidebarOverlay')?.addEventListener('click', () => {
+        document.getElementById('sidebar').classList.remove('open');
+        document.getElementById('sidebarOverlay').classList.add('hidden');
+    });
     document.addEventListener('click', e => {
         const sidebar = document.getElementById('sidebar');
         const menu = document.getElementById('menuToggle');
-        if (sidebar.classList.contains('open') && !sidebar.contains(e.target) && !menu?.contains(e.target)) {
+        const overlay = document.getElementById('sidebarOverlay');
+        if (sidebar.classList.contains('open') && !sidebar.contains(e.target) && !menu?.contains(e.target) && !overlay?.contains(e.target)) {
             sidebar.classList.remove('open');
+            overlay?.classList.add('hidden');
         }
     });
 
@@ -865,9 +876,6 @@ function initEventListeners() {
     });
     document.getElementById('npStop')?.addEventListener('click', e => { e.stopPropagation(); stopAllSounds(); });
     document.getElementById('playerPanelClose')?.addEventListener('click', closePlayerPanel);
-
-    // Enable audio on first interaction
-    document.addEventListener('click', () => { state.audioEnabled = true; }, { once: true });
 }
 
 // ---- Visibility / Session ----
