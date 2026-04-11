@@ -449,15 +449,22 @@ function updateAmbientGlow() {
 }
 
 // ---- Now Playing Bar ----
+const categoryColors = {
+    rain: '#007aff', nature: '#34c759', urban: '#ff9500',
+    transport: '#af52de', places: '#ff2d55', animals: '#ffcc00',
+    noise: '#8e8e93', things: '#5ac8fa'
+};
+
 function updateNowPlaying() {
     const bar = document.getElementById('nowPlaying');
-    const sounds = document.getElementById('npSounds');
+    const count = document.getElementById('npCount');
     const npTimer = document.getElementById('npTimer');
     const npTimerVal = document.getElementById('npTimerValue');
 
     if (state.activeSounds.size === 0) {
         bar.classList.add('hidden');
-        closePlayerPanel();
+        bar.classList.remove('expanded');
+        document.getElementById('npPanel')?.classList.add('hidden');
         if (npTimer) npTimer.classList.add('hidden');
         renderQuickPresets();
         updateAmbientGlow();
@@ -465,7 +472,7 @@ function updateNowPlaying() {
     }
 
     bar.classList.remove('hidden');
-    sounds.innerHTML = '';
+    if (count) count.textContent = state.activeSounds.size + ' 个声音';
 
     if (npTimer && npTimerVal) {
         if (state.timer.active) {
@@ -477,67 +484,76 @@ function updateNowPlaying() {
         }
     }
 
-    state.activeSounds.forEach((d, id) => {
-        const el = document.createElement('div');
-        el.className = 'np-sound';
-        el.innerHTML = `<span>${d.sound.name}</span><button class="snd-remove" data-id="${id}"><i class="fa-solid fa-xmark"></i></button>`;
-        el.querySelector('.snd-remove').addEventListener('click', e => { e.stopPropagation(); stopSound(id); });
-        sounds.appendChild(el);
-    });
+    // If panel is visible, update its contents
+    if (bar.classList.contains('expanded')) updateNPPanel();
 
-    updatePlayerPanel();
     updateAmbientGlow();
     renderQuickPresets();
 }
 
-// ---- Player Panel (expanded) ----
-function openPlayerPanel() {
-    document.getElementById('playerPanel').classList.remove('hidden');
-    updatePlayerPanel();
+function toggleNPPanel() {
+    const bar = document.getElementById('nowPlaying');
+    const panel = document.getElementById('npPanel');
+    const isExpanded = bar.classList.contains('expanded');
+
+    if (isExpanded) {
+        bar.classList.remove('expanded');
+        panel.classList.add('hidden');
+    } else {
+        bar.classList.add('expanded');
+        panel.classList.remove('hidden');
+        updateNPPanel();
+    }
 }
 
-function closePlayerPanel() {
-    document.getElementById('playerPanel').classList.add('hidden');
-}
-
-function updatePlayerPanel() {
-    const body = document.getElementById('playerPanelBody');
+function updateNPPanel() {
+    const body = document.getElementById('npPanelBody');
     if (!body) return;
     body.innerHTML = '';
 
     state.activeSounds.forEach((d, id) => {
-        const item = document.createElement('div');
-        item.className = 'pp-item';
+        const row = document.createElement('div');
+        row.className = 'np-sound-row';
+
+        const catColor = categoryColors[d.category] || '#007aff';
+
+        const dot = document.createElement('span');
+        dot.className = 'np-cat-dot';
+        dot.style.background = catColor;
 
         const name = document.createElement('span');
-        name.className = 'pp-name';
+        name.className = 'np-sound-name';
         name.textContent = d.sound.name;
 
         const slider = document.createElement('input');
         slider.type = 'range';
-        slider.className = 'pp-slider';
+        slider.className = 'np-panel-slider';
         slider.min = '0'; slider.max = '100'; slider.value = d.volume;
         slider.style.setProperty('--fill', d.volume + '%');
+        slider.style.setProperty('--np-fill', catColor);
 
         const vol = document.createElement('span');
-        vol.className = 'pp-vol';
+        vol.className = 'np-sound-vol';
         vol.textContent = d.volume + '%';
 
         const remove = document.createElement('button');
-        remove.className = 'pp-remove';
+        remove.className = 'np-sound-remove';
         remove.innerHTML = '<i class="fa-solid fa-xmark"></i>';
 
         slider.addEventListener('input', e => {
+            e.stopPropagation();
             const v = parseInt(e.target.value);
             vol.textContent = v + '%';
             e.target.style.setProperty('--fill', v + '%');
             updateSoundVolume(id, v);
         });
+        slider.addEventListener('click', e => e.stopPropagation());
+        slider.addEventListener('touchstart', e => e.stopPropagation(), { passive: true });
 
-        remove.addEventListener('click', () => stopSound(id));
+        remove.addEventListener('click', e => { e.stopPropagation(); stopSound(id); });
 
-        item.append(name, slider, vol, remove);
-        body.appendChild(item);
+        row.append(dot, name, slider, vol, remove);
+        body.appendChild(row);
     });
 }
 
@@ -869,13 +885,12 @@ function initEventListeners() {
     document.getElementById('presetsOverlay')?.addEventListener('click', closePresets);
     document.getElementById('topbarSave')?.addEventListener('click', savePreset);
 
-    // Now playing bar
-    document.getElementById('nowPlaying')?.addEventListener('click', e => {
-        if (e.target.closest('.snd-remove') || e.target.closest('.np-stop')) return;
-        openPlayerPanel();
+    // Now playing bar — click to expand/collapse panel
+    document.getElementById('npBar')?.addEventListener('click', e => {
+        if (e.target.closest('.np-stop-all')) return;
+        toggleNPPanel();
     });
     document.getElementById('npStop')?.addEventListener('click', e => { e.stopPropagation(); stopAllSounds(); });
-    document.getElementById('playerPanelClose')?.addEventListener('click', closePlayerPanel);
 }
 
 // ---- Visibility / Session ----

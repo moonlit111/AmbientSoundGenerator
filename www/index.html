@@ -158,32 +158,23 @@
         </div>
     </div>
 
-    <!-- Now Playing Floating Bar -->
+    <!-- Now Playing — Minimal Glass Bar -->
     <div class="now-playing hidden" id="nowPlaying">
-        <div class="np-center">
-            <div class="np-indicator">
-                <span class="np-dot"></span>
-            </div>
-            <div class="np-sounds" id="npSounds"></div>
+        <div class="np-bar" id="npBar">
+            <div class="np-indicator"><span class="np-dot"></span></div>
+            <span class="np-count" id="npCount">0 个声音</span>
             <div class="np-timer hidden" id="npTimer">
                 <i class="fa-solid fa-moon"></i>
                 <span id="npTimerValue">00:00</span>
             </div>
+            <i class="fa-solid fa-chevron-up np-chevron" id="npChevron"></i>
         </div>
-        <button class="np-stop" id="npStop" title="全部停止">
-            <i class="fa-solid fa-stop"></i>
-        </button>
-    </div>
-
-    <!-- Expanded Player Panel -->
-    <div class="player-panel hidden" id="playerPanel">
-        <div class="player-panel-header">
-            <span class="player-panel-title">正在播放</span>
-            <button class="player-panel-close" id="playerPanelClose">
-                <i class="fa-solid fa-chevron-down"></i>
+        <div class="np-panel hidden" id="npPanel">
+            <div class="np-panel-body" id="npPanelBody"></div>
+            <button class="np-stop-all" id="npStop">
+                <i class="fa-solid fa-stop"></i><span>全部停止</span>
             </button>
         </div>
-        <div class="player-panel-body" id="playerPanelBody"></div>
     </div>
 
     <!-- Sleep Timer Sheet -->
