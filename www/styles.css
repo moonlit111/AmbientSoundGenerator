@@ -535,19 +535,21 @@ input{font-family:inherit;color:inherit}
 /* The clickable bar row */
 .np-bar{
     display:flex;align-items:center;gap:var(--sp-3);
-    background:var(--glass-bg);
-    backdrop-filter:saturate(200%) blur(40px);-webkit-backdrop-filter:saturate(200%) blur(40px);
-    border:1px solid var(--glass-border);
+    background:var(--bg-surface-solid, #fff);
+    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    border:1px solid var(--border-strong);
     border-radius:var(--r-full);
     padding:0 var(--sp-5);
     height:48px;
-    box-shadow:var(--glass-shadow), var(--glass-inset);
+    box-shadow:0 4px 24px rgba(0,0,0,.1), 0 1px 4px rgba(0,0,0,.06);
     cursor:pointer;
     transition:box-shadow var(--dur-fast) ease, background var(--dur-fast) ease;
 }
+body.dark .np-bar{
+    background:#1c1c1e;
+}
 .np-bar:hover{
-    box-shadow:var(--glass-shadow-hover), var(--glass-inset);
-    background:var(--glass-bg-hover);
+    box-shadow:0 6px 28px rgba(0,0,0,.14), 0 2px 6px rgba(0,0,0,.08);
 }
 /* Expanded state: square off bottom for panel attachment */
 .now-playing.expanded .np-bar{
@@ -600,13 +602,16 @@ input{font-family:inherit;color:inherit}
 
 /* Expanded panel */
 .np-panel{
-    background:var(--glass-bg);
-    backdrop-filter:saturate(200%) blur(40px);-webkit-backdrop-filter:saturate(200%) blur(40px);
-    border:1px solid var(--glass-border);border-top:none;
+    background:var(--bg-surface-solid, #fff);
+    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    border:1px solid var(--border-strong);border-top:none;
     border-radius:0 0 var(--r-2xl) var(--r-2xl);
     padding:var(--sp-3) var(--sp-5) var(--sp-4);
-    box-shadow:var(--glass-shadow);
+    box-shadow:0 8px 28px rgba(0,0,0,.1);
     animation:npPanelIn .25s var(--ease-out) both;
+}
+body.dark .np-panel{
+    background:#1c1c1e;
 }
 @keyframes npPanelIn{
     from{opacity:0;transform:translateY(-4px)}
