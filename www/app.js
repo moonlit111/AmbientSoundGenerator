@@ -416,10 +416,10 @@ function stopAllSounds() {
 
 // ---- Ambient Glow ----
 const glowColors = {
-    rain: 'rgba(0,122,255,%.08)', nature: 'rgba(52,199,89,%.07)',
-    urban: 'rgba(255,149,0,%.07)', transport: 'rgba(175,82,222,%.07)',
-    places: 'rgba(255,45,85,%.06)', animals: 'rgba(255,204,0,%.06)',
-    noise: 'rgba(142,142,147,%.06)', things: 'rgba(90,200,250,%.07)'
+    rain: 'rgba(0,122,255,%.18)', nature: 'rgba(52,199,89,%.14)',
+    urban: 'rgba(255,149,0,%.14)', transport: 'rgba(175,82,222,%.14)',
+    places: 'rgba(255,45,85,%.12)', animals: 'rgba(255,204,0,%.12)',
+    noise: 'rgba(142,142,147,%.10)', things: 'rgba(90,200,250,%.14)'
 };
 
 function updateAmbientGlow() {
@@ -429,8 +429,11 @@ function updateAmbientGlow() {
     if (state.activeSounds.size === 0) {
         app.style.removeProperty('--glow-1');
         app.style.removeProperty('--glow-2');
+        app.classList.remove('has-active');
         return;
     }
+
+    app.classList.add('has-active');
 
     const counts = {};
     state.activeSounds.forEach(d => counts[d.category] = (counts[d.category] || 0) + 1);
@@ -438,8 +441,8 @@ function updateAmbientGlow() {
     const primary = sorted[0]?.[0];
     const secondary = sorted[1]?.[0];
 
-    const p = glowColors[primary] || 'rgba(0,122,255,%.08)';
-    const s = glowColors[secondary || primary] || 'rgba(52,199,89,%.06)';
+    const p = glowColors[primary] || 'rgba(0,122,255,%.18)';
+    const s = glowColors[secondary || primary] || 'rgba(52,199,89,%.14)';
 
     app.style.setProperty('--glow-1', p.replace('%', ''));
     app.style.setProperty('--glow-2', s.replace('%', ''));
@@ -448,7 +451,7 @@ function updateAmbientGlow() {
 // ---- Now Playing Bar ----
 function updateNowPlaying() {
     const bar = document.getElementById('nowPlaying');
-    const chips = document.getElementById('npChips');
+    const sounds = document.getElementById('npSounds');
     const npTimer = document.getElementById('npTimer');
     const npTimerVal = document.getElementById('npTimerValue');
 
@@ -462,7 +465,7 @@ function updateNowPlaying() {
     }
 
     bar.classList.remove('hidden');
-    chips.innerHTML = '';
+    sounds.innerHTML = '';
 
     if (npTimer && npTimerVal) {
         if (state.timer.active) {
@@ -475,11 +478,11 @@ function updateNowPlaying() {
     }
 
     state.activeSounds.forEach((d, id) => {
-        const chip = document.createElement('div');
-        chip.className = 'np-chip';
-        chip.innerHTML = `<span>${d.sound.name}</span><button class="chip-remove" data-id="${id}"><i class="fa-solid fa-xmark"></i></button>`;
-        chip.querySelector('.chip-remove').addEventListener('click', e => { e.stopPropagation(); stopSound(id); });
-        chips.appendChild(chip);
+        const el = document.createElement('div');
+        el.className = 'np-sound';
+        el.innerHTML = `<span>${d.sound.name}</span><button class="snd-remove" data-id="${id}"><i class="fa-solid fa-xmark"></i></button>`;
+        el.querySelector('.snd-remove').addEventListener('click', e => { e.stopPropagation(); stopSound(id); });
+        sounds.appendChild(el);
     });
 
     updatePlayerPanel();
@@ -857,7 +860,7 @@ function initEventListeners() {
 
     // Now playing bar
     document.getElementById('nowPlaying')?.addEventListener('click', e => {
-        if (e.target.closest('.chip-remove') || e.target.closest('.np-stop')) return;
+        if (e.target.closest('.snd-remove') || e.target.closest('.np-stop')) return;
         openPlayerPanel();
     });
     document.getElementById('npStop')?.addEventListener('click', e => { e.stopPropagation(); stopAllSounds(); });

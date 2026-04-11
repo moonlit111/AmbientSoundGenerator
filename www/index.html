@@ -109,16 +109,19 @@
                 <div class="topbar-desktop">
                     <h1 class="section-title" id="sectionTitle">全部声音</h1>
                     <div class="topbar-actions">
-                        <button class="topbar-btn" id="topbarTimer" title="睡眠定时">
+                        <button class="topbar-btn-lg" id="topbarTimer" title="睡眠定时">
                             <i class="fa-solid fa-moon"></i>
+                            <span>睡眠定时</span>
                         </button>
-                        <button class="topbar-btn" id="topbarPresets" title="已保存混音">
+                        <button class="topbar-btn-lg" id="topbarPresets" title="已保存混音">
                             <i class="fa-solid fa-folder-open"></i>
+                            <span>已保存</span>
                         </button>
-                        <button class="topbar-btn" id="topbarSave" title="保存混音">
+                        <button class="topbar-btn-lg primary" id="topbarSave" title="保存混音">
                             <i class="fa-solid fa-plus"></i>
+                            <span>保存</span>
                         </button>
-                        <button class="topbar-btn" id="topbarTheme" title="切换主题">
+                        <button class="topbar-btn-lg" id="topbarTheme" title="切换主题">
                             <i class="fa-solid fa-circle-half-stroke"></i>
                         </button>
                     </div>
@@ -152,25 +155,20 @@
     </div>
 
     <!-- Now Playing Floating Bar -->
-    <div class="now-playing hidden" id="nowPlaying" role="button" tabindex="0">
-        <div class="np-left">
+    <div class="now-playing hidden" id="nowPlaying">
+        <div class="np-center">
             <div class="np-indicator">
                 <span class="np-dot"></span>
             </div>
-            <div class="np-info">
-                <span class="np-label">正在播放</span>
-                <div class="np-chips" id="npChips"></div>
-            </div>
+            <div class="np-sounds" id="npSounds"></div>
             <div class="np-timer hidden" id="npTimer">
                 <i class="fa-solid fa-moon"></i>
                 <span id="npTimerValue">00:00</span>
             </div>
         </div>
-        <div class="np-actions">
-            <button class="np-stop" id="npStop" title="全部停止">
-                <i class="fa-solid fa-stop"></i>
-            </button>
-        </div>
+        <button class="np-stop" id="npStop" title="全部停止">
+            <i class="fa-solid fa-stop"></i>
+        </button>
     </div>
 
     <!-- Expanded Player Panel -->
